@@ -46,13 +46,6 @@ _QName = ET.QName
 from functools import partial
 
 try:
-    from types import GenericAlias as _GenericAlias
-except ImportError:
-    # Python 3.8 - we only need this as return value from "__class_getitem__"
-    def _GenericAlias(cls, item):
-        return f"{cls.__name__}[{item.__name__}]"
-
-try:
     basestring
 except NameError:
     basestring = str
@@ -233,10 +226,6 @@ class ElementMaker:
 
     def __getattr__(self, tag):
         return partial(self, tag)
-
-    # Allow subscripting ElementMaker in type annotions (PEP 560)
-    def __class_getitem__(cls, item):
-        return _GenericAlias(cls, item)
 
 
 # create factory object

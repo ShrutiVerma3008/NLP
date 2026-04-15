@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from collections.abc import Callable
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, Generic, TypeVar, Union
 
 from .._core._exceptions import EndOfStream
 from .._core._typedattr import TypedAttributeProvider
@@ -34,7 +34,7 @@ class UnreliableObjectReceiveStream(
         try:
             return await self.receive()
         except EndOfStream:
-            raise StopAsyncIteration from None
+            raise StopAsyncIteration
 
     @abstractmethod
     async def receive(self) -> T_co:
@@ -130,14 +130,14 @@ class ByteReceiveStream(AsyncResource, TypedAttributeProvider):
         try:
             return await self.receive()
         except EndOfStream:
-            raise StopAsyncIteration from None
+            raise StopAsyncIteration
 
     @abstractmethod
     async def receive(self, max_bytes: int = 65536) -> bytes:
         """
         Receive at most ``max_bytes`` bytes from the peer.
 
-        .. note:: Implementers of this interface should not return an empty
+        .. note:: Implementors of this interface should not return an empty
             :class:`bytes` object, and users should ignore them.
 
         :param max_bytes: maximum number of bytes to receive
@@ -172,21 +172,19 @@ class ByteStream(ByteReceiveStream, ByteSendStream):
 
 
 #: Type alias for all unreliable bytes-oriented receive streams.
-AnyUnreliableByteReceiveStream: TypeAlias = (
-    UnreliableObjectReceiveStream[bytes] | ByteReceiveStream
-)
+AnyUnreliableByteReceiveStream = Union[
+    UnreliableObjectReceiveStream[bytes], ByteReceiveStream
+]
 #: Type alias for all unreliable bytes-oriented send streams.
-AnyUnreliableByteSendStream: TypeAlias = (
-    UnreliableObjectSendStream[bytes] | ByteSendStream
-)
+AnyUnreliableByteSendStream = Union[UnreliableObjectSendStream[bytes], ByteSendStream]
 #: Type alias for all unreliable bytes-oriented streams.
-AnyUnreliableByteStream: TypeAlias = UnreliableObjectStream[bytes] | ByteStream
+AnyUnreliableByteStream = Union[UnreliableObjectStream[bytes], ByteStream]
 #: Type alias for all bytes-oriented receive streams.
-AnyByteReceiveStream: TypeAlias = ObjectReceiveStream[bytes] | ByteReceiveStream
+AnyByteReceiveStream = Union[ObjectReceiveStream[bytes], ByteReceiveStream]
 #: Type alias for all bytes-oriented send streams.
-AnyByteSendStream: TypeAlias = ObjectSendStream[bytes] | ByteSendStream
+AnyByteSendStream = Union[ObjectSendStream[bytes], ByteSendStream]
 #: Type alias for all bytes-oriented streams.
-AnyByteStream: TypeAlias = ObjectStream[bytes] | ByteStream
+AnyByteStream = Union[ObjectStream[bytes], ByteStream]
 
 
 class Listener(Generic[T_co], AsyncResource, TypedAttributeProvider):
@@ -203,31 +201,3 @@ class Listener(Generic[T_co], AsyncResource, TypedAttributeProvider):
         :param task_group: the task group that will be used to start tasks for handling
             each accepted connection (if omitted, an ad-hoc task group will be created)
         """
-
-
-class ObjectStreamConnectable(Generic[T_co], metaclass=ABCMeta):
-    @abstractmethod
-    async def connect(self) -> ObjectStream[T_co]:
-        """
-        Connect to the remote endpoint.
-
-        :return: an object stream connected to the remote end
-        :raises ConnectionFailed: if the connection fails
-        """
-
-
-class ByteStreamConnectable(metaclass=ABCMeta):
-    @abstractmethod
-    async def connect(self) -> ByteStream:
-        """
-        Connect to the remote endpoint.
-
-        :return: a bytestream connected to the remote end
-        :raises ConnectionFailed: if the connection fails
-        """
-
-
-#: Type alias for all connectables returning bytestreams or bytes-oriented object streams
-AnyByteStreamConnectable: TypeAlias = (
-    ObjectStreamConnectable[bytes] | ByteStreamConnectable
-)

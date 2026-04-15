@@ -1,9 +1,58 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# AI Resume Intelligence System — Backend Requirements
+# Python 3.10 / 3.11 / 3.12 compatible
+#
+# IMPORTANT — before installing, remove the legacy Python-2-only `docx` package
+# if it is already present in your venv (it shadows python-docx and crashes):
+#   pip uninstall docx -y
+# Pin strategy: use exact (~=) to allow patch-level updates while
+#               locking major.minor for stability.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
 fastapi==0.115.5
-uvicorn[standard]==0.32.1
+# starlette is fastapi's ASGI toolkit — pin to the version shipped with 0.115.5
+starlette==0.41.3
+uvicorn[standard]==0.32.1        # includes websockets + watchfiles for --reload
+
+# ── Request parsing ───────────────────────────────────────────────────────────
+python-multipart==0.0.17         # required for UploadFile / Form support
+
+# ── Environment / Config ──────────────────────────────────────────────────────
 python-dotenv==1.0.1
+
+# ── Data validation ───────────────────────────────────────────────────────────
+pydantic==2.9.2                  # fastapi 0.115.x is tested against pydantic v2
+pydantic-core==2.23.4            # must match pydantic version exactly
+annotated-types==0.7.0
+
+# ── Google Generative AI (Gemini) ─────────────────────────────────────────────
 google-generativeai==0.8.3
-PyPDF2==3.0.1
-python-docx==1.1.2
-gitingest==0.1.16
+# transitive deps of google-generativeai (pinned to avoid resolver churn)
+google-ai-generativelanguage==0.6.10
+google-api-core==2.22.0
+google-api-python-client==2.149.0
+google-auth==2.36.0
+google-auth-httplib2==0.2.0
+googleapis-common-protos==1.65.0
+grpcio==1.67.1
+grpcio-status==1.67.1
+proto-plus==1.25.0
+protobuf==5.28.3
+
+# ── HTTP Client ───────────────────────────────────────────────────────────────
 httpx==0.27.2
-python-multipart==0.0.17
+httpcore==1.0.6
+h11==0.14.0
+anyio==4.6.2                     # async backend used by httpx + starlette
+
+# ── File Parsing ──────────────────────────────────────────────────────────────
+PyPDF2==3.0.1
+python-docx==1.1.2               # import as `from docx import Document` — do NOT install the old `docx` pkg
+lxml==5.3.0                      # xml back-end for python-docx (lxml 6.x needs Py 3.12+)
+
+# ── GitHub Ingestion ──────────────────────────────────────────────────────────
+gitingest==0.1.5                 # latest pip-available version (0.1.16 does not exist on PyPI)
+
+# ── Typing helpers ────────────────────────────────────────────────────────────
+typing_extensions==4.12.2

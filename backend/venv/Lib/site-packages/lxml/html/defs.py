@@ -4,13 +4,13 @@
 
 """
 Data taken from https://www.w3.org/TR/html401/index/elements.html
-and https://html.spec.whatwg.org/multipage/syntax.html#elements-2
+and https://www.w3.org/community/webed/wiki/HTML/New_HTML5_Elements
 for html5_tags.
 """
 
 empty_tags = frozenset([
-    'area', 'base', 'basefont', 'br', 'col', 'embed', 'frame', 'hr',
-    'img', 'input', 'isindex', 'link', 'meta', 'param', 'source', 'track', 'wbr'])
+    'area', 'base', 'basefont', 'br', 'col', 'frame', 'hr',
+    'img', 'input', 'isindex', 'link', 'meta', 'param', 'source', 'track'])
 
 deprecated_tags = frozenset([
     'applet', 'basefont', 'center', 'dir', 'font', 'isindex',

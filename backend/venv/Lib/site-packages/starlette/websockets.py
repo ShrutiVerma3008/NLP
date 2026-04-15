@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import enum
 import json
-from collections.abc import AsyncIterator, Iterable
-from typing import Any, cast
+import typing
 
-from starlette.requests import HTTPConnection, StateT
+from starlette.requests import HTTPConnection
 from starlette.responses import Response
 from starlette.types import Message, Receive, Scope, Send
 
@@ -23,7 +22,7 @@ class WebSocketDisconnect(Exception):
         self.reason = reason or ""
 
 
-class WebSocket(HTTPConnection[StateT]):
+class WebSocket(HTTPConnection):
     def __init__(self, scope: Scope, receive: Receive, send: Send) -> None:
         super().__init__(scope)
         assert scope["type"] == "websocket"
@@ -100,11 +99,11 @@ class WebSocket(HTTPConnection[StateT]):
     async def accept(
         self,
         subprotocol: str | None = None,
-        headers: Iterable[tuple[bytes, bytes]] | None = None,
+        headers: typing.Iterable[tuple[bytes, bytes]] | None = None,
     ) -> None:
         headers = headers or []
 
-        if self.client_state == WebSocketState.CONNECTING:  # pragma: no branch
+        if self.client_state == WebSocketState.CONNECTING:
             # If we haven't yet seen the 'connect' message, then wait for it first.
             await self.receive()
         await self.send({"type": "websocket.accept", "subprotocol": subprotocol, "headers": headers})
@@ -118,16 +117,16 @@ class WebSocket(HTTPConnection[StateT]):
             raise RuntimeError('WebSocket is not connected. Need to call "accept" first.')
         message = await self.receive()
         self._raise_on_disconnect(message)
-        return cast(str, message["text"])
+        return typing.cast(str, message["text"])
 
     async def receive_bytes(self) -> bytes:
         if self.application_state != WebSocketState.CONNECTED:
             raise RuntimeError('WebSocket is not connected. Need to call "accept" first.')
         message = await self.receive()
         self._raise_on_disconnect(message)
-        return cast(bytes, message["bytes"])
+        return typing.cast(bytes, message["bytes"])
 
-    async def receive_json(self, mode: str = "text") -> Any:
+    async def receive_json(self, mode: str = "text") -> typing.Any:
         if mode not in {"text", "binary"}:
             raise RuntimeError('The "mode" argument should be "text" or "binary".')
         if self.application_state != WebSocketState.CONNECTED:
@@ -141,21 +140,21 @@ class WebSocket(HTTPConnection[StateT]):
             text = message["bytes"].decode("utf-8")
         return json.loads(text)
 
-    async def iter_text(self) -> AsyncIterator[str]:
+    async def iter_text(self) -> typing.AsyncIterator[str]:
         try:
             while True:
                 yield await self.receive_text()
         except WebSocketDisconnect:
             pass
 
-    async def iter_bytes(self) -> AsyncIterator[bytes]:
+    async def iter_bytes(self) -> typing.AsyncIterator[bytes]:
         try:
             while True:
                 yield await self.receive_bytes()
         except WebSocketDisconnect:
             pass
 
-    async def iter_json(self) -> AsyncIterator[Any]:
+    async def iter_json(self) -> typing.AsyncIterator[typing.Any]:
         try:
             while True:
                 yield await self.receive_json()
@@ -168,7 +167,7 @@ class WebSocket(HTTPConnection[StateT]):
     async def send_bytes(self, data: bytes) -> None:
         await self.send({"type": "websocket.send", "bytes": data})
 
-    async def send_json(self, data: Any, mode: str = "text") -> None:
+    async def send_json(self, data: typing.Any, mode: str = "text") -> None:
         if mode not in {"text", "binary"}:
             raise RuntimeError('The "mode" argument should be "text" or "binary".')
         text = json.dumps(data, separators=(",", ":"), ensure_ascii=False)

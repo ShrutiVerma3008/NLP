@@ -70,7 +70,7 @@ _forms_xpath = etree.XPath("descendant-or-self::form|descendant-or-self::x:form"
 #_class_xpath = etree.XPath(r"descendant-or-self::*[regexp:match(@class, concat('\b', $class_name, '\b'))]", {'regexp': 'http://exslt.org/regular-expressions'})
 _class_xpath = etree.XPath("descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), concat(' ', $class_name, ' '))]")
 _id_xpath = etree.XPath("descendant-or-self::*[@id=$id]")
-_collect_string_content = etree.XPath("string()", smart_strings=False)
+_collect_string_content = etree.XPath("string()")
 _iter_css_urls = re.compile(r'url\(('+'["][^"]*["]|'+"['][^']*[']|"+r'[^)]*)\)', re.I).finditer
 _iter_css_imports = re.compile(r'@import "(.*?)"').finditer
 _label_xpath = etree.XPath("//label[@for=$id]|//x:label[@for=$id]",
@@ -263,9 +263,7 @@ class HtmlMixin:
         Return the <body> element.  Can be called from a child element
         to get the document's head.
         """
-        for element in self.getroottree().iter("body", f"{{{XHTML_NAMESPACE}}}body"):
-            return element
-        return None
+        return self.xpath('//body|//x:body', namespaces={'x':XHTML_NAMESPACE})[0]
 
     @property
     def head(self):
@@ -273,9 +271,7 @@ class HtmlMixin:
         Returns the <head> element.  Can be called from a child
         element to get the document's head.
         """
-        for element in self.getroottree().iter("head", f"{{{XHTML_NAMESPACE}}}head"):
-            return element
-        return None
+        return self.xpath('//head|//x:head', namespaces={'x':XHTML_NAMESPACE})[0]
 
     @property
     def label(self):
