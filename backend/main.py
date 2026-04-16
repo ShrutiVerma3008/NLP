@@ -4,7 +4,7 @@ from routes.analyze import router as analyze_router
 
 app = FastAPI(
     title="AI Resume Intelligence System",
-    description="AI-powered resume optimizer using Gemini 1.5 Flash, GitIngest, and ATS analysis",
+    description="AI-powered resume optimizer using OpenRouter, GitIngest, and ATS analysis",
     version="1.0.0",
 )
 

@@ -1,16 +1,12 @@
 import os
 import json
 import re
-import asyncio
-
-import google.generativeai as genai
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_api_key = os.getenv("GOOGLE_API_KEY", "")
-if _api_key:
-    genai.configure(api_key=_api_key)
+_api_key = os.getenv("OPENROUTER_API_KEY", "")
 
 # ── System Prompt ─────────────────────────────────────────────────────────────
 SYSTEM_PROMPT = """\
@@ -110,12 +106,17 @@ Step 6: Provide recruiter-level insight
 
 
 async def analyze_resume(resume_text: str, job_description: str, github_summary: str) -> dict:
-    """Call Gemini 1.5 Flash with the structured system prompt and return parsed JSON."""
+    """Call OpenRouter API with the structured system prompt and return parsed JSON."""
     if not _api_key:
         raise ValueError(
-            "GOOGLE_API_KEY is not set. Copy .env.example → .env and add your key "
-            "from https://aistudio.google.com/app/apikey"
+            "OPENROUTER_API_KEY is not set. Add your key to .env "
+            "from https://openrouter.ai/keys"
         )
+    
+    client = AsyncOpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=_api_key,
+    )
 
     prompt = SYSTEM_PROMPT.format(
         resume_text=resume_text or "Not provided",
@@ -123,21 +124,16 @@ async def analyze_resume(resume_text: str, job_description: str, github_summary:
         github_summary=github_summary or "Not provided",
     )
 
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        generation_config=genai.GenerationConfig(
-            temperature=0.4,
-            max_output_tokens=4096,
-        ),
+    response = await client.chat.completions.create(
+        model="google/gemini-2.5-flash", 
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.4,
+        max_tokens=4096,
     )
 
-    # Gemini SDK is synchronous — run in thread pool
-    loop = asyncio.get_event_loop()
-    response = await loop.run_in_executor(
-        None, lambda: model.generate_content(prompt)
-    )
-
-    raw = response.text.strip()
+    raw = response.choices[0].message.content.strip()
 
     # Strip any accidental markdown fencing
     raw = re.sub(r"^```(?:json)?\s*", "", raw)
@@ -170,3 +166,4 @@ async def analyze_resume(resume_text: str, job_description: str, github_summary:
             "recruiter_insight": "Analysis failed — please try again.",
             "github_integration": [],
         }
+
