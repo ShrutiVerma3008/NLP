@@ -12,7 +12,7 @@ const LOADING_STEPS = [
   { icon: 'description',  text: 'Parsing resume document...' },
   { icon: 'work',         text: 'Extracting job requirements...' },
   { icon: 'hub',          text: 'Fetching GitHub data via GitIngest...' },
-  { icon: 'auto_awesome', text: 'Running Gemini 1.5 analysis...' },
+  { icon: 'auto_awesome', text: 'Running Gemini 2.5 Flash analysis...' },
   { icon: 'analytics',    text: 'Calculating ATS score...' },
   { icon: 'edit_note',    text: 'Rewriting resume bullets...' },
 ]
@@ -48,18 +48,17 @@ export default function Dashboard() {
   }
 
   return (
-    <>
-      {/* Pass activeTab + setActiveTab into the shared Sidebar logic */}
+    <div className="app-layout">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Page Header */}
-      <div className="page-header">
-        <div className="page-header-eyebrow">Precision Optimization</div>
-        <h1 className="page-title">AI Resume Intelligence Engine</h1>
-        <p className="page-subtitle">
-          Optimize your resume using AI, ATS insights, and GitHub intelligence to stand out in the modern tech landscape.
-        </p>
-      </div>
+      <main className="main-content">
+        {/* Page Header */}
+        <div className="page-header">
+          <div className="page-header-eyebrow">Precision Optimization</div>
+          <h1 className="page-title">AI Resume Intelligence Engine</h1>
+          <p className="page-subtitle">
+            Optimize your resume using AI, ATS insights, and GitHub intelligence to stand out in the modern tech landscape.
+          </p>
+        </div>
 
       {/* Upload Panel — always visible at top */}
       <div style={{ padding: '32px 64px 0' }}>
@@ -219,6 +218,8 @@ export default function Dashboard() {
           </div>
         </>
       )}
-    </>
+      </main>
+    </div>
   )
 }
+

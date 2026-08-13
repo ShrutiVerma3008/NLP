@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ── Vite env files (never commit real secrets) ────────────────────────────────
+.env
+.env.*
+!.env.example

@@ -1,12 +1,19 @@
-# Virtual environments
+# ── Virtual environments ─────────────────────────────────────────────────────
 venv/
 backend/venv/
 frontend/venv/
 
-# Python cache
+# ── Python cache ──────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Environment variables
+# ── Environment / secrets ─────────────────────────────────────────────────────
+# Ignore all .env files …
 .env
 .env.*
+# … but keep the example templates (they must be committed)
+!.env.example
+!backend/.env.example
+!frontend/.env.example

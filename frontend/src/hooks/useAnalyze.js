@@ -1,5 +1,8 @@
+const rawBase = import.meta.env.VITE_API_URL || ''
+const API_BASE_URL = rawBase.replace(/\/$/, '')
+
 export async function analyzeResume(formData) {
-  const response = await fetch('/api/analyze', {
+  const response = await fetch(`${API_BASE_URL}/api/analyze`, {
     method: 'POST',
     body: formData,
   })
@@ -11,3 +14,4 @@ export async function analyzeResume(formData) {
 
   return response.json()
 }
+
