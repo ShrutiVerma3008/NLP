@@ -1,6 +1,6 @@
 # 🧠 AI RIS — AI Resume Intelligence System
 
-An AI-powered resume optimizer that analyzes your resume against a job description, scores ATS compatibility, rewrites bullets, identifies skill gaps, and recommends projects — powered by **OpenRouter** and **GitIngest**.
+An AI-powered resume optimizer that analyzes your resume against a job description, scores ATS compatibility with a **deterministic scoring engine**, rewrites bullets, identifies skill gaps, and recommends projects — powered by **FastAPI**, **OpenRouter**, **PyMuPDF**, and **GitIngest**.
 
 ---
 
@@ -8,11 +8,13 @@ An AI-powered resume optimizer that analyzes your resume against a job descripti
 
 | Feature | Description |
 |---|---|
-| **ATS Score** | 0–100 match score with radial score ring |
-| **Bullet Rewriter** | Before/after bullet rewrites with action verbs + metrics |
+| **Deterministic ATS Engine** | Algorithmic 0–100 match score with skill normalization & evidence tracing |
+| **Multi-Engine PDF Extraction** | PyMuPDF, pdfplumber, pypdf, & PyPDF2 fallback for 100% text extraction |
+| **Bullet Rewriter** | Fact-grounded bullet rewrites with action verbs + metrics |
 | **Skill Gap Analysis** | Color-coded gaps by severity (Critical / Moderate / Minor) |
-| **Project Suggestions** | 3 personalized build projects with tech stacks |
-| **GitHub Integration** | Analyzes your GitHub repos via GitIngest |
+| **Project Suggestions** | Personalized build projects with tech stacks |
+| **GitHub Integration** | Analyzes public GitHub repos via GitIngest |
+| **Automated Test Suite** | 45 comprehensive unit tests for scoring, parsing, and schemas |
 | **Optimized Resume** | Full downloadable ATS-ready resume |
 
 ---
@@ -20,7 +22,7 @@ An AI-powered resume optimizer that analyzes your resume against a job descripti
 ## 🗂️ Project Structure
 
 ```
-AI RIS_project/
+NLP/
 ├── start.bat                  ← One-click launcher (Windows)
 │
 ├── frontend/                  ← Vite + React (port 5173)
@@ -34,14 +36,21 @@ AI RIS_project/
 └── backend/                   ← FastAPI (port 8000)
     ├── main.py
     ├── requirements.txt
-    ├── .env                   ← Your API key goes here
+    ├── .env                   ← API keys and origins
     ├── .env.example           ← Template
     ├── routes/
-    │   └── analyze.py
-    └── services/
-        ├── llm_service.py     ← OpenRouter (gemini-2.5-flash)
-        ├── github_service.py  ← GitHub API + GitIngest
-        └── parser_service.py  ← PDF + DOCX parser
+    │   └── analyze.py         ← Main analysis route
+    ├── schemas/               ← Pydantic response models
+    │   ├── analysis.py
+    │   ├── ats.py
+    │   └── resume.py
+    ├── services/
+    │   ├── ats_engine.py      ← Deterministic 0-100 scoring algorithm
+    │   ├── llm_service.py     ← OpenRouter (gemini-2.5-flash)
+    │   ├── github_service.py  ← GitHub API + GitIngest
+    │   ├── parser_service.py  ← Multi-engine PDF + DOCX parser
+    │   └── skill_normalizer.py← Skill matching & normalization
+    └── test_module1.py..test_module4.py ← 45 automated unit tests
 ```
 
 ---
@@ -59,8 +68,8 @@ AI RIS_project/
 ### Step 1 — Clone the repo
 
 ```bash
-git clone https://github.com/ShrutiVerma3008/AI-RIS.git
-cd AI-RIS
+git clone https://github.com/ShrutiVerma3008/NLP.git
+cd NLP
 ```
 
 ### Step 2 — Configure the API Key
