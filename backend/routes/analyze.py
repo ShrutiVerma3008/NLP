@@ -22,7 +22,7 @@ from services.ats_engine import calculate_ats_score
 from services.github_service import get_github_summary
 from services.jd_analyzer import analyze_job_description
 from services.llm_service import analyze_resume
-from services.parser_service import parse_file
+from services.parser_service import parse_file, parse_resume_bytes
 from services.resume_structurer import create_resume_document
 
 logger = logging.getLogger("ai_ris.routes.analyze")
@@ -92,15 +92,14 @@ async def analyze(
                 ),
             )
 
-        resume_file._file = io.BytesIO(file_bytes)  # type: ignore[attr-defined]
-
         try:
-            raw_extracted_text = await parse_file(resume_file)
+            raw_extracted_text = parse_resume_bytes(file_bytes, filename)
         except Exception as exc:
             logger.warning("Resume parse failed for '%s': %s", filename, exc)
+            detail_msg = str(exc) if str(exc) else "Could not extract text from the uploaded file. Ensure it is a valid, non-encrypted PDF or DOCX."
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Could not extract text from the uploaded file. Ensure it is a valid, non-encrypted PDF or DOCX.",
+                detail=detail_msg,
             )
 
     else:

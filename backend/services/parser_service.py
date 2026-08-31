@@ -20,6 +20,7 @@ logger = logging.getLogger("ai_ris.parser")
 
 async def parse_file(file: UploadFile) -> str:
     """Extract plain text from an uploaded PDF or DOCX file."""
+    await file.seek(0)
     content = await file.read()
     filename = (file.filename or "").lower()
     return parse_resume_bytes(content, filename)
@@ -50,22 +51,76 @@ def parse_resume_bytes(content: bytes, filename: str) -> str:
 
 
 def _parse_pdf(content: bytes) -> str:
+    extracted_text = ""
+    errors = []
+
+    # Engine 1: PyMuPDF (pymupdf) - Handles custom font encoding, Canva, and Word exports
     try:
-        reader = PyPDF2.PdfReader(io.BytesIO(content))
-        if len(reader.pages) == 0:
-            raise ValueError("PDF file has 0 pages.")
+        import pymupdf
+        doc = pymupdf.open(stream=content, filetype="pdf")
         pages = []
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                pages.append(text)
-        extracted = "\n".join(pages).strip()
-        if not extracted:
-            raise ValueError("PDF contains no extractable text.")
-        return extracted
+        for page in doc:
+            t = page.get_text("text")
+            if t and t.strip():
+                pages.append(t.strip())
+        extracted_text = "\n".join(pages).strip()
     except Exception as exc:
-        logger.warning("PDF extraction error: %s", exc)
-        raise ValueError(f"Failed to extract text from PDF: {exc}")
+        logger.debug("PyMuPDF extraction failed: %s", exc)
+        errors.append(f"PyMuPDF: {exc}")
+
+    # Engine 2: pdfplumber - Excellent for complex table layout PDFs
+    if not extracted_text:
+        try:
+            import pdfplumber
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                pages = []
+                for page in pdf.pages:
+                    t = page.extract_text()
+                    if t and t.strip():
+                        pages.append(t.strip())
+                extracted_text = "\n".join(pages).strip()
+        except Exception as exc:
+            logger.debug("pdfplumber extraction failed: %s", exc)
+            errors.append(f"pdfplumber: {exc}")
+
+    # Engine 3: pypdf (modern PyPDF successor)
+    if not extracted_text:
+        try:
+            import pypdf
+            reader = pypdf.PdfReader(io.BytesIO(content))
+            pages = []
+            for page in reader.pages:
+                t = page.extract_text()
+                if t and t.strip():
+                    pages.append(t.strip())
+            extracted_text = "\n".join(pages).strip()
+        except Exception as exc:
+            logger.debug("pypdf extraction failed: %s", exc)
+            errors.append(f"pypdf: {exc}")
+
+    # Engine 4: PyPDF2 (legacy fallback)
+    if not extracted_text:
+        try:
+            reader = PyPDF2.PdfReader(io.BytesIO(content))
+            if len(reader.pages) == 0:
+                raise ValueError("PDF file has 0 pages.")
+            pages = []
+            for page in reader.pages:
+                t = page.extract_text()
+                if t and t.strip():
+                    pages.append(t.strip())
+            extracted_text = "\n".join(pages).strip()
+        except Exception as exc:
+            logger.debug("PyPDF2 extraction failed: %s", exc)
+            errors.append(f"PyPDF2: {exc}")
+
+    if not extracted_text:
+        raise ValueError(
+            "Failed to extract text from PDF. The file may be a scanned image or photo PDF without selectable text. "
+            "Please copy and paste your resume text using the 'Paste Text' tab."
+        )
+
+    return extracted_text
 
 
 def _parse_docx(content: bytes) -> str:
