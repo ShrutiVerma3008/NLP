@@ -1,5 +1,15 @@
 export default function ProjectSuggestions({ projects }) {
-  if (!projects || projects.length === 0) return null
+  if (!projects || projects.length === 0) {
+    return (
+      <div className="panel">
+        <div className="panel-label">Step 5 — Recommendations</div>
+        <div className="panel-title">Project Suggestions</div>
+        <div className="text-muted text-sm" style={{ marginTop: '12px' }}>
+          No specific project suggestions available yet. Upload a resume and job description above to generate AI recommendations.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="panel">
