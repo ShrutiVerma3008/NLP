@@ -4,7 +4,7 @@ export default function ResumeOptimizer({ originalBullets, optimizedBullets, imp
   return (
     <div className="panel">
       <div className="panel-label">Step 4 — AI Enhancement</div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div className="panel-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div className="panel-title" style={{ margin: 0 }}>Bullet Point Rewrite</div>
         <IntelligencePulse label="Live Optimization" />
       </div>

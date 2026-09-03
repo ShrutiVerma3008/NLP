@@ -61,13 +61,13 @@ export default function Dashboard() {
         </div>
 
       {/* Upload Panel — always visible at top */}
-      <div style={{ padding: '32px 64px 0' }}>
+      <div className="upload-section-container" style={{ padding: '32px 64px 0' }}>
         <UploadPanel onSubmit={handleSubmit} isLoading={isLoading} />
       </div>
 
       {/* Error */}
       {error && (
-        <div style={{
+        <div className="error-banner-container" style={{
           margin: '16px 64px',
           padding: '16px 20px',
           background: 'rgba(186,26,26,0.08)',
@@ -113,25 +113,27 @@ export default function Dashboard() {
       {results && !isLoading && (
         <>
           {/* Tab Navigation */}
-          <div className="tab-nav" style={{ padding: '0 64px', background: 'var(--surface-white)', borderBottom: '1px solid rgba(198,198,205,0.2)' }}>
-            {TABS.map(tab => (
-              <button
-                key={tab.id}
-                className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <span className="material-icons-round" style={{ fontSize: '16px' }}>{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
+          <div className="tab-nav-container" style={{ padding: '0 64px', background: 'var(--surface-white)', borderBottom: '1px solid rgba(198,198,205,0.2)' }}>
+            <div className="tab-nav">
+              {TABS.map(tab => (
+                <button
+                  key={tab.id}
+                  className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  <span className="material-icons-round" style={{ fontSize: '16px' }}>{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Tab Content */}
-          <div style={{ padding: '32px 64px 64px' }}>
+          <div className="tab-content-container" style={{ padding: '32px 64px 64px' }}>
 
             {/* ATS Score Tab */}
             {activeTab === 'ats' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px', alignItems: 'start' }}>
+              <div className="ats-tab-grid" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '24px', alignItems: 'start' }}>
                 <ATSScoreCard
                   score={results.ats_score ?? 0}
                   strengths={results.top_strengths}
@@ -153,7 +155,7 @@ export default function Dashboard() {
                 />
                 {results.optimized_resume && (
                   <div className="panel">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <div className="panel-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <div>
                         <div className="panel-label">Full Optimized Resume</div>
                         <div className="panel-title" style={{ marginBottom: 0 }}>ATS-Ready Version</div>

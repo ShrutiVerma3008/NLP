@@ -62,7 +62,7 @@ export default function UploadPanel({ onSubmit, isLoading }) {
 
       <form onSubmit={handleSubmit}>
         {/* Mode Toggle */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <div className="mode-toggle-group" style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
           <button
             type="button"
             className={`btn btn-secondary`}
@@ -83,7 +83,7 @@ export default function UploadPanel({ onSubmit, isLoading }) {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="upload-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           {/* Left column: Resume */}
           <div>
             <div className="form-group">
